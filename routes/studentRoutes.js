@@ -1,15 +1,28 @@
 const express = require('express');
-const { getStudents, addStudent, updateStudent, deleteStudent } = require('../controllers/studentController');
+const {
+  getStudents,
+  addStudent,
+  updateStudent,
+  deleteStudent
+} = require('./../controllers/studentController');
 const router = express.Router();
 
 /**
- * @openapi
- * /students:
+ * @swagger
+ * tags:
+ *   name: Students
+ *   description: API to manage students
+ */
+
+/**
+ * @swagger
+ * /api/students:
  *   get:
- *     description: Get all students
+ *     summary: Get list of students
+ *     tags: [Students]
  *     responses:
  *       200:
- *         description: A list of students
+ *         description: List of students
  *         content:
  *           application/json:
  *             schema:
@@ -17,26 +30,26 @@ const router = express.Router();
  *               items:
  *                 type: object
  *                 properties:
- *                   id:
+ *                   number:
  *                     type: integer
- *                     example: 1
+ *                     example: 12345
  *                   firstName:
  *                     type: string
- *                     example: "John"
+ *                     example: John
  *                   lastName:
  *                     type: string
- *                     example: "Doe"
+ *                     example: Doe
  *                   class:
  *                     type: integer
  *                     example: 10
  */
-router.get('/', getStudents);
 
 /**
- * @openapi
- * /students:
+ * @swagger
+ * /api/students:
  *   post:
- *     description: Add a new student
+ *     summary: Add a new student
+ *     tags: [Students]
  *     requestBody:
  *       required: true
  *       content:
@@ -44,31 +57,51 @@ router.get('/', getStudents);
  *           schema:
  *             type: object
  *             properties:
+ *               number:
+ *                 type: integer
+ *                 example: 12345
  *               firstName:
  *                 type: string
- *                 example: "John"
+ *                 example: John
  *               lastName:
  *                 type: string
- *                 example: "Doe"
+ *                 example: Doe
  *               class:
  *                 type: integer
  *                 example: 10
  *     responses:
  *       201:
  *         description: Student created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 number:
+ *                   type: integer
+ *                   example: 12345
+ *                 firstName:
+ *                   type: string
+ *                   example: John
+ *                 lastName:
+ *                   type: string
+ *                   example: Doe
+ *                 class:
+ *                   type: integer
+ *                   example: 10
  */
-router.post('/', addStudent);
 
 /**
- * @openapi
- * /students/{id}:
+ * @swagger
+ * /api/students/{number}:
  *   put:
- *     description: Update a student by ID
+ *     summary: Update a student
+ *     tags: [Students]
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: number
  *         required: true
- *         description: The ID of the student
+ *         description: Student number
  *         schema:
  *           type: integer
  *     requestBody:
@@ -80,35 +113,56 @@ router.post('/', addStudent);
  *             properties:
  *               firstName:
  *                 type: string
- *                 example: "John"
+ *                 example: John
  *               lastName:
  *                 type: string
- *                 example: "Doe"
+ *                 example: Doe
  *               class:
  *                 type: integer
  *                 example: 10
  *     responses:
  *       200:
  *         description: Student updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 number:
+ *                   type: integer
+ *                   example: 12345
+ *                 firstName:
+ *                   type: string
+ *                   example: John
+ *                 lastName:
+ *                   type: string
+ *                   example: Doe
+ *                 class:
+ *                   type: integer
+ *                   example: 10
  */
-router.put('/:id', updateStudent);
 
 /**
- * @openapi
- * /students/{id}:
+ * @swagger
+ * /api/students/{number}:
  *   delete:
- *     description: Delete a student by ID
+ *     summary: Delete a student
+ *     tags: [Students]
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: number
  *         required: true
- *         description: The ID of the student
+ *         description: Student number
  *         schema:
  *           type: integer
  *     responses:
  *       204:
  *         description: Student deleted
  */
-router.delete('/:id', deleteStudent);
+
+router.get('/', getStudents);
+router.post('/', addStudent);
+router.put('/:number', updateStudent);
+router.delete('/:number', deleteStudent);
 
 module.exports = router;

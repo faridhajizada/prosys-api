@@ -1,1 +1,14 @@
-[{"firstName":"Farid","lastName":"Hajizada","class":11}]
+[
+  {
+    "number": 12345,
+    "firstName": "John",
+    "lastName": "Doe",
+    "class": 10
+  },
+  {
+    "number": 111,
+    "firstName": "йцуке",
+    "lastName": "фывапр",
+    "class": 1110
+  }
+]

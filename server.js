@@ -7,7 +7,6 @@ const { swaggerUi, specs } = require('./swagger');
 
 const app = express();
 const PORT = 3009;
-
 app.use(bodyParser.json());
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));

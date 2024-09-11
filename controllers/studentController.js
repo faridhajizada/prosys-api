@@ -1,36 +1,67 @@
-const fs = require('fs');
-const path = './data/students.json';
+const fs = require("fs").promises;
+const path = "./data/students.json";
 
-const getStudents = (req, res) => {
-  const students = JSON.parse(fs.readFileSync(path));
-  res.json(students);
-};
-
-const addStudent = (req, res) => {
-  const students = JSON.parse(fs.readFileSync(path));
-  const newStudent = req.body;
-  students.push(newStudent);
-  fs.writeFileSync(path, JSON.stringify(students));
-  res.status(201).json(newStudent);
-};
-
-const updateStudent = (req, res) => {
-  const students = JSON.parse(fs.readFileSync(path));
-  const studentIndex = students.findIndex((s) => s.id === parseInt(req.params.id));
-  if (studentIndex !== -1) {
-    students[studentIndex] = { ...students[studentIndex], ...req.body };
-    fs.writeFileSync(path, JSON.stringify(students));
-    res.json(students[studentIndex]);
-  } else {
-    res.status(404).json({ message: 'Student not found' });
+const getStudents = async (req, res) => {
+  try {
+    const data = await fs.readFile(path, "utf-8");
+    const students = JSON.parse(data);
+    res.json(students);
+  } catch (err) {
+    res.status(500).json({ message: "Error reading students data", error: err.message });
   }
 };
 
-const deleteStudent = (req, res) => {
-  let students = JSON.parse(fs.readFileSync(path));
-  students = students.filter((s) => s.id !== parseInt(req.params.id));
-  fs.writeFileSync(path, JSON.stringify(students));
-  res.status(204).send();
+const addStudent = async (req, res) => {
+  try {
+    const data = await fs.readFile(path, "utf-8");
+    const students = JSON.parse(data);
+    const newStudent = req.body;
+
+    if (!newStudent.number || !newStudent.firstName || !newStudent.lastName || !newStudent.class) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    students.push(newStudent);
+    await fs.writeFile(path, JSON.stringify(students, null, 2));
+    res.status(201).json(newStudent);
+  } catch (err) {
+    res.status(500).json({ message: "Error adding student", error: err.message });
+  }
+};
+
+const updateStudent = async (req, res) => {
+  try {
+    const data = await fs.readFile(path, "utf-8");
+    const students = JSON.parse(data);
+    const studentIndex = students.findIndex(s => s.number === parseInt(req.params.number));
+
+    if (studentIndex !== -1) {
+      students[studentIndex] = { ...students[studentIndex], ...req.body };
+      await fs.writeFile(path, JSON.stringify(students, null, 2));
+      res.json(students[studentIndex]);
+    } else {
+      res.status(404).json({ message: "Student not found" });
+    }
+  } catch (err) {
+    res.status(500).json({ message: "Error updating student", error: err.message });
+  }
+};
+
+const deleteStudent = async (req, res) => {
+  try {
+    const data = await fs.readFile(path, "utf-8");
+    let students = JSON.parse(data);
+    students = students.filter(s => s.number !== parseInt(req.params.number));
+
+    if (students.length === JSON.parse(data).length) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    await fs.writeFile(path, JSON.stringify(students, null, 2));
+    res.status(204).send();
+  } catch (err) {
+    res.status(500).json({ message: "Error deleting student", error: err.message });
+  }
 };
 
 module.exports = { getStudents, addStudent, updateStudent, deleteStudent };
