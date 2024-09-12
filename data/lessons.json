@@ -1,9 +1,9 @@
 [
   {
-    "code": "ENG",
-    "name": "English",
-    "class": 11,
-    "teacherFirstName": "John",
-    "teacherLastName": "Doe"
+    "code": "12345",
+    "name": "Mathematics",
+    "class": "11",
+    "teacherFirstName": "Farid ",
+    "teacherLastName": "Hajizada"
   }
 ]

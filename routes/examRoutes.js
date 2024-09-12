@@ -4,9 +4,12 @@ const router = express.Router();
 
 /**
  * @openapi
- * /exams:
+ * /api/exams:
  *   get:
- *     description: Get all exams
+ *     tags:
+ *       - Exams
+ *     summary: Get all exams
+ *     description: Retrieve a list of all exams
  *     responses:
  *       200:
  *         description: A list of exams
@@ -35,9 +38,12 @@ router.get('/', getExams);
 
 /**
  * @openapi
- * /exams:
+ * /api/exams:
  *   post:
- *     description: Add a new exam
+ *     tags:
+ *       - Exams
+ *     summary: Add a new exam
+ *     description: Create a new exam entry
  *     requestBody:
  *       required: true
  *       content:
@@ -60,15 +66,20 @@ router.get('/', getExams);
  *                 example: 85
  *     responses:
  *       201:
- *         description: Exam created
+ *         description: Exam created successfully
+ *       400:
+ *         description: Bad request if the input is invalid
  */
 router.post('/', addExam);
 
 /**
  * @openapi
- * /exams/{lessonCode}/{studentNumber}:
+ * /api/exams/{lessonCode}/{studentNumber}:
  *   put:
- *     description: Update an exam by lesson code and student number
+ *     tags:
+ *       - Exams
+ *     summary: Update an existing exam
+ *     description: Update the details of an exam based on lesson code and student number
  *     parameters:
  *       - in: path
  *         name: lessonCode
@@ -98,15 +109,22 @@ router.post('/', addExam);
  *                 example: 85
  *     responses:
  *       200:
- *         description: Exam updated
+ *         description: Exam updated successfully
+ *       400:
+ *         description: Bad request if the input is invalid
+ *       404:
+ *         description: Not found if the exam does not exist
  */
 router.put('/:lessonCode/:studentNumber', updateExam);
 
 /**
  * @openapi
- * /exams/{lessonCode}/{studentNumber}:
+ * /api/exams/{lessonCode}/{studentNumber}:
  *   delete:
- *     description: Delete an exam by lesson code and student number
+ *     tags:
+ *       - Exams
+ *     summary: Delete an exam
+ *     description: Remove an exam based on lesson code and student number
  *     parameters:
  *       - in: path
  *         name: lessonCode
@@ -122,7 +140,9 @@ router.put('/:lessonCode/:studentNumber', updateExam);
  *           type: integer
  *     responses:
  *       204:
- *         description: Exam deleted
+ *         description: Exam deleted successfully
+ *       404:
+ *         description: Not found if the exam does not exist
  */
 router.delete('/:lessonCode/:studentNumber', deleteExam);
 
