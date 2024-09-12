@@ -1,1 +1,9 @@
-[{"code":"MAT","name":"Mathematics","class":10,"teacherFirstName":"John","teacherLastName":"Doe"}]
+[
+  {
+    "code": "ENG",
+    "name": "English",
+    "class": 11,
+    "teacherFirstName": "John",
+    "teacherLastName": "Doe"
+  }
+]

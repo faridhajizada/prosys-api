@@ -4,12 +4,15 @@ const router = express.Router();
 
 /**
  * @openapi
- * /lessons:
+ * /api/lessons:
  *   get:
- *     description: Get all lessons
+ *     tags:
+ *       - Lessons
+ *     summary: Get all lessons
+ *     description: Retrieve a list of all lessons.
  *     responses:
  *       200:
- *         description: A list of lessons
+ *         description: A list of lessons.
  *         content:
  *           application/json:
  *             schema:
@@ -37,9 +40,12 @@ router.get('/', getLessons);
 
 /**
  * @openapi
- * /lessons:
+ * /api/lessons:
  *   post:
- *     description: Add a new lesson
+ *     tags:
+ *       - Lessons
+ *     summary: Add a new lesson
+ *     description: Add a new lesson to the system.
  *     requestBody:
  *       required: true
  *       content:
@@ -64,20 +70,23 @@ router.get('/', getLessons);
  *                 example: "Doe"
  *     responses:
  *       201:
- *         description: Lesson created
+ *         description: Lesson created successfully.
  */
 router.post('/', addLesson);
 
 /**
  * @openapi
- * /lessons/{code}:
+ * /api/lessons/{code}:
  *   put:
- *     description: Update a lesson by code
+ *     tags:
+ *       - Lessons
+ *     summary: Update a lesson by code
+ *     description: Update details of a specific lesson by its code.
  *     parameters:
  *       - in: path
  *         name: code
  *         required: true
- *         description: The code of the lesson
+ *         description: The unique code of the lesson.
  *         schema:
  *           type: string
  *     requestBody:
@@ -101,25 +110,28 @@ router.post('/', addLesson);
  *                 example: "Doe"
  *     responses:
  *       200:
- *         description: Lesson updated
+ *         description: Lesson updated successfully.
  */
 router.put('/:code', updateLesson);
 
 /**
  * @openapi
- * /lessons/{code}:
+ * /api/lessons/{code}:
  *   delete:
- *     description: Delete a lesson by code
+ *     tags:
+ *       - Lessons
+ *     summary: Delete a lesson by code
+ *     description: Delete a specific lesson by its unique code.
  *     parameters:
  *       - in: path
  *         name: code
  *         required: true
- *         description: The code of the lesson
+ *         description: The unique code of the lesson.
  *         schema:
  *           type: string
  *     responses:
  *       204:
- *         description: Lesson deleted
+ *         description: Lesson deleted successfully.
  */
 router.delete('/:code', deleteLesson);
 
