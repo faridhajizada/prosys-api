@@ -1,19 +1,22 @@
-const fs = require('fs'); // Импортируем fs для работы с файловой системой
+const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
 
-// Конфигурация для multer
+// Настройка для хранения загруженных файлов
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/");
+    cb(null, path.join(__dirname, '../uploads'));
   },
   filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
+    // Преобразуем имя файла в безопасный для URL формат
+    const safeFileName = encodeURIComponent(`${Date.now()}-${file.originalname}`);
+    cb(null, safeFileName);
   },
 });
 
 const upload = multer({ storage: storage });
 
+// Загрузка изображения
 const uploadImage = (req, res) => {
   if (!req.file) {
     return res.status(400).json({ message: "Please upload a file" });
@@ -24,20 +27,18 @@ const uploadImage = (req, res) => {
   });
 };
 
-// Новый метод для получения списка изображений
+// Получение списка изображений
 const getImages = (req, res) => {
   const uploadsDir = path.join(__dirname, '../uploads');
 
-  // Читаем содержимое директории
   fs.readdir(uploadsDir, (err, files) => {
     if (err) {
       return res.status(500).json({ message: "Unable to scan files" });
     }
 
-    // Формируем полный путь для каждого файла
     const imageFiles = files.map(file => ({
-      filename: file,
-      url: `/uploads/${file}`
+      filename: decodeURIComponent(file), // Декодируем имя файла для отображения
+      url: `/uploads/${encodeURIComponent(file)}` // Кодируем URL для безопасности
     }));
 
     res.status(200).json(imageFiles);
@@ -47,5 +48,5 @@ const getImages = (req, res) => {
 module.exports = {
   upload,
   uploadImage,
-  getImages  // Экспортируем новый контроллер
+  getImages  
 };

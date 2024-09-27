@@ -12,11 +12,14 @@ const { swaggerUi, specs } = require("./swagger");
 const app = express();
 const PORT = 3009;
 
-app.use(cors());
+app.use(cors({
+  origin: '*',  
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(bodyParser.json());
 
-// Статический маршрут для доступа к загруженным изображениям
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));  
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 app.use("/api/students", studentRoutes);
