@@ -4,5 +4,11 @@
     "firstName": "Farid",
     "lastName": "Hajizada",
     "class": "11"
+  },
+  {
+    "number": 12345,
+    "firstName": "qwertyui",
+    "lastName": "Doe",
+    "class": 10
   }
 ]
