@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const sharp = require("sharp");
 
 // Преобразование изображения в Base64 строку
 function imageToBase64(filePath) {
@@ -23,7 +24,7 @@ const getImages = (req, res) => {
 
 // Получение изображения по имени файла
 const getImageByFilename = (req, res) => {
-  const filename = req.params.filename;
+  const { filename } = req.params;
   const jsonFilePath = path.join(__dirname, "../uploads/images.json");
 
   fs.readFile(jsonFilePath, "utf8", (err, data) => {
@@ -42,15 +43,13 @@ const getImageByFilename = (req, res) => {
   });
 };
 
-// Загрузка изображения и добавление его в JSON файл
-const uploadImage = (req, res) => {
+// Загрузка изображения, конвертация в WebP и добавление его в JSON файл
+const uploadImage = async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ message: "Please upload a file" });
   }
 
-  const base64String = req.file.buffer.toString("base64");
   const jsonFilePath = path.join(__dirname, "../uploads/images.json");
-
   let imagesData = { images: [] };
 
   // Если JSON файл существует, читаем данные
@@ -59,19 +58,31 @@ const uploadImage = (req, res) => {
     imagesData = JSON.parse(fileData);
   }
 
-  // Добавляем новое изображение
-  imagesData.images.push({
-    filename: req.file.originalname,
-    base64: base64String,
-  });
+  try {
+    // Конвертация изображения в WebP с помощью Sharp
+    const webpBuffer = await sharp(req.file.buffer)
+      .webp({ quality: 80 }) // Настройка качества (можно изменить)
+      .toBuffer();
 
-  // Сохраняем JSON файл
-  fs.writeFileSync(jsonFilePath, JSON.stringify(imagesData, null, 2));
+    // Преобразование в Base64
+    const base64String = webpBuffer.toString("base64");
 
-  res.status(200).json({
-    message: "File uploaded and stored as Base64 in JSON",
-    filename: req.file.originalname,
-  });
+    // Добавляем новое изображение в JSON
+    imagesData.images.push({
+      filename: req.file.originalname, // Оригинальное имя файла
+      base64: base64String,
+    });
+
+    // Сохраняем обновленный JSON файл
+    fs.writeFileSync(jsonFilePath, JSON.stringify(imagesData, null, 2));
+
+    res.status(200).json({
+      message: "File uploaded, converted to WebP, and stored as Base64 in JSON",
+      filename: req.file.originalname,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error processing the image" });
+  }
 };
 
 module.exports = {
