@@ -1,8 +1,15 @@
-const express = require('express');
-const { upload, uploadImage, getImages } = require('../controllers/imageController');
+const express = require("express");
+const multer = require("multer");
+const {
+  getImages,
+  uploadImage,
+  getImageByFilename,
+} = require("../controllers/imageController");
 
 const router = express.Router();
+const upload = multer(); // Используем multer для работы с буфером памяти
 
+// Маршрут для загрузки изображения
 /**
  * @swagger
  * /images/upload:
@@ -21,7 +28,7 @@ const router = express.Router();
  *                 format: binary
  *     responses:
  *       200:
- *         description: Image uploaded successfully
+ *         description: Image uploaded successfully and stored as Base64 in JSON
  *         content:
  *           application/json:
  *             schema:
@@ -29,13 +36,14 @@ const router = express.Router();
  *               properties:
  *                 message:
  *                   type: string
- *                 filePath:
+ *                 filename:
  *                   type: string
  *       400:
  *         description: Bad Request
  */
-router.post('/upload', upload.single('image'), uploadImage);
+router.post("/upload", upload.single("image"), uploadImage);
 
+// Маршрут для получения всех изображений
 /**
  * @swagger
  * /images:
@@ -44,7 +52,7 @@ router.post('/upload', upload.single('image'), uploadImage);
  *     tags: [Images]
  *     responses:
  *       200:
- *         description: List of images
+ *         description: List of images stored in JSON
  *         content:
  *           application/json:
  *             schema:
@@ -54,9 +62,40 @@ router.post('/upload', upload.single('image'), uploadImage);
  *                 properties:
  *                   filename:
  *                     type: string
- *                   url:
+ *                   base64:
  *                     type: string
  */
-router.get('/', getImages);
+router.get("/", getImages);
+
+// Маршрут для получения изображения по имени файла
+/**
+ * @swagger
+ * /images/{filename}:
+ *   get:
+ *     summary: Get image by filename
+ *     tags: [Images]
+ *     parameters:
+ *       - in: path
+ *         name: filename
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The image filename
+ *     responses:
+ *       200:
+ *         description: Base64 string of the image
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 filename:
+ *                   type: string
+ *                 base64:
+ *                   type: string
+ *       404:
+ *         description: Image not found
+ */
+router.get("/:filename", getImageByFilename);
 
 module.exports = router;

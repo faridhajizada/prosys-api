@@ -1,52 +1,81 @@
-const fs = require('fs');
-const path = require('path');
-const multer = require('multer');
+const fs = require("fs");
+const path = require("path");
 
-// Настройка для хранения загруженных файлов
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../uploads'));
-  },
-  filename: (req, file, cb) => {
-    // Преобразуем имя файла в безопасный для URL формат
-    const safeFileName = encodeURIComponent(`${Date.now()}-${file.originalname}`);
-    cb(null, safeFileName);
-  },
-});
+// Преобразование изображения в Base64 строку
+function imageToBase64(filePath) {
+  const file = fs.readFileSync(filePath);
+  return file.toString("base64");
+}
 
-const upload = multer({ storage: storage });
+// Получение всех изображений из JSON файла
+const getImages = (req, res) => {
+  const jsonFilePath = path.join(__dirname, "../uploads/images.json");
 
-// Загрузка изображения
+  fs.readFile(jsonFilePath, "utf8", (err, data) => {
+    if (err) {
+      return res.status(500).json({ message: "Unable to read JSON file" });
+    }
+
+    const imagesData = JSON.parse(data);
+    res.status(200).json(imagesData.images);
+  });
+};
+
+// Получение изображения по имени файла
+const getImageByFilename = (req, res) => {
+  const filename = req.params.filename;
+  const jsonFilePath = path.join(__dirname, "../uploads/images.json");
+
+  fs.readFile(jsonFilePath, "utf8", (err, data) => {
+    if (err) {
+      return res.status(500).json({ message: "Unable to read JSON file" });
+    }
+
+    const imagesData = JSON.parse(data);
+    const image = imagesData.images.find((img) => img.filename === filename);
+
+    if (!image) {
+      return res.status(404).json({ message: "Image not found" });
+    }
+
+    res.status(200).json(image);
+  });
+};
+
+// Загрузка изображения и добавление его в JSON файл
 const uploadImage = (req, res) => {
   if (!req.file) {
     return res.status(400).json({ message: "Please upload a file" });
   }
-  res.status(200).json({
-    message: "File uploaded successfully",
-    filePath: `/uploads/${req.file.filename}`,
+
+  const base64String = req.file.buffer.toString("base64");
+  const jsonFilePath = path.join(__dirname, "../uploads/images.json");
+
+  let imagesData = { images: [] };
+
+  // Если JSON файл существует, читаем данные
+  if (fs.existsSync(jsonFilePath)) {
+    const fileData = fs.readFileSync(jsonFilePath, "utf8");
+    imagesData = JSON.parse(fileData);
+  }
+
+  // Добавляем новое изображение
+  imagesData.images.push({
+    filename: req.file.originalname,
+    base64: base64String,
   });
-};
 
-// Получение списка изображений
-const getImages = (req, res) => {
-  const uploadsDir = path.join(__dirname, '../uploads');
+  // Сохраняем JSON файл
+  fs.writeFileSync(jsonFilePath, JSON.stringify(imagesData, null, 2));
 
-  fs.readdir(uploadsDir, (err, files) => {
-    if (err) {
-      return res.status(500).json({ message: "Unable to scan files" });
-    }
-
-    const imageFiles = files.map(file => ({
-      filename: decodeURIComponent(file), // Декодируем имя файла для отображения
-      url: `/uploads/${encodeURIComponent(file)}` // Кодируем URL для безопасности
-    }));
-
-    res.status(200).json(imageFiles);
+  res.status(200).json({
+    message: "File uploaded and stored as Base64 in JSON",
+    filename: req.file.originalname,
   });
 };
 
 module.exports = {
-  upload,
+  getImages,
+  getImageByFilename,
   uploadImage,
-  getImages  
 };
